@@ -118,7 +118,7 @@ boxplot(
 ``` 
 
 ### Linear Comparison Idea
-We also looked at radius_mean, since size-related measurements are often linked to tumor severity. Larger and more irregular nuclei often appear in malignant samples, so radius is another feature worth examining when comparing the two groups.  
+We also examined radius_mean in relation to concavity_mean to understand how overall tumor size relates to shape irregularity. Radius captures the average size of the cell nucleus, while concavity measures how indented or irregular the tumor boundary is. Since malignant tumors tend to be both larger and more irregular in shape, comparing these two variables helps reveal whether increases in size are associated with increases in structural irregularity across benign and malignant cases.
 
 ```{r LR}
 BC |> 

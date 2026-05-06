@@ -13,7 +13,7 @@ colnames(BC)
 diagnosis_table = table(BC$diagnosis)
 print(diagnosis_table)
 
-table(BC$cyl_factor)
+table(BC$diagnosis)
 #Check NAs in dataset
 sum(is.na(BC))
 
