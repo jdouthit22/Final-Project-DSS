@@ -17,13 +17,12 @@ table(BC$cyl_factor)
 #Check NAs in dataset
 sum(is.na(BC))
 
-#Percent of M ro B
+#Percent of M vs B
 d_data <- BC %>%
   count(diagnosis) %>%
   mutate(
     percent = round((n / sum(n)) * 100,2)
   )
-
 
 
 #Pie Chart: Diagnosis Distribution
@@ -34,16 +33,6 @@ ggplot(d_data, aes(x = "", y = percent, fill = diagnosis)) +
             position = position_stack(vjust = 0.5), size = 3, color = "black") +
   labs(title = "Diagnosis Distribution") +
   theme_void() 
-
-
-#Bar Chart
-
-
-
-#Linear Regression
-BC |> 
-  ggplot(aes(x = count(diagnosis), y = radius_mean)) +
-  geom_point(color = "darkred", size = 4)
 
 
 #ECDF Graph
@@ -95,8 +84,15 @@ boxplot(
   border = "gray40"
 )
 
-
+#Stacked histogram: Radius_worst vs B & M
 BC |> 
   filter(diagnosis %in% c("M", "B")) |>
-  ggplot(aes(x = duration, fill = diagnosis)) +
-  geom_histogram(alpha = 0.6, bins = 15)
+  ggplot(aes(x = radius_worst, fill = diagnosis)) +
+  geom_histogram(bins = 15)
+
+#Linear Regression
+BC |> 
+  ggplot(aes(x = radius_mean, y = concavity_mean, color = diagnosis)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+  ggthemes::scale_color_colorblind()
