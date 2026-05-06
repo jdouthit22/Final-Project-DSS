@@ -72,8 +72,8 @@ The pie chart of diagnosis distribution shows the proportion of malignant versus
 
 ```{r pie chart}
 #Percent of M vs B
-d_data <- BC %>%
-  count(diagnosis) %>%
+d_data <- BC |>
+  count(diagnosis) |>
   mutate(
     percent = round((n / sum(n)) * 100,2)
   )
