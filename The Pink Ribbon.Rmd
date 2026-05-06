@@ -1,0 +1,167 @@
+---
+title: "The Pink Ribbon"
+author: "Jada Douthit & Patrick Stephens"
+date: "2026-05-06"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+## Background Information
+This project uses the breast cancer biopsy dataset to explore whether cell nucleus measurements can help identify malignant tumors. The dataset contains 569 biopsy records and 32 columns, with each row representing one patient sample. The outcome variable is diagnosis, where M = Malignant and B = Benign. The predictor variables describe geometric and texture characteristics of cell nuclei, such as radius, perimeter, area, concavity, and concave points.
+
+Since the goal of this project is to determine which measurement is the most telltale sign of a malignant tumor, we focused on comparing malignant and benign tumors using summary tables and visualizations. This allowed us to identify which measurements showed the clearest separation between the two groups.
+
+
+## Research Question
+### Which measurement is the most telltale sign of a malignant tumor?
+#### Variables Used
+
+- **Diagnosis**: categorical variable with two levels  
+  - M = Malignant  
+  - B = Benign  
+
+- **Radius, concavity, concave points, and related nucleus measurements**: continuous variables  
+
+- **Key comparison variables used in the graphs**:  
+  - concave.points_worst  
+  - concavity_worst  
+  - radius_mean  
+  
+## Data Preparation
+Before creating any graphs, we loaded the dataset with read.csv() and inspected its structure using nrow(), ncol(), and colnames() to confirm the number of observations and variables. We also created a frequency table for the diagnosis variable using table(BC$diagnosis) to see how many malignant and benign cases were present.
+
+Next, we calculated the percentage of each diagnosis group by using count(diagnosis) and then dividing each count by the total number of observations. This produced a smaller summary table called d_data, which we used to create a pie chart showing the overall distribution of malignant and benign tumors.
+
+We also checked for missing values using sum(is.na(BC)) to make sure the dataset was ready for analysis.
+Finally, we created two filtered datasets:
+- MT for malignant tumors only
+- BT for benign tumors only
+These subsets helped us compare the two groups more clearly.
+
+```{r starter}
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+BC = read.csv("/Volumes/T9/RSTUDIO WORK/Directed Seminar/Final-Project-DSS/breast-cancer.csv")
+```
+
+```{r inspect}
+ncol(BC)
+nrow(BC)
+colnames(BC)
+sum(is.na(BC))
+table(BC$diagnosis)
+
+MT <- BC |>
+  filter(diagnosis == "M")
+
+
+BT <- BC |>
+  filter(diagnosis == "B")
+```
+  
+
+## Graphical Analysis and Findings
+### Diagnosis Distribution Pie Chart
+The pie chart of diagnosis distribution shows the proportion of malignant versus benign tumors in the dataset. This graph gives a quick overview of how balanced the sample is and helps us understand the size of each group before making deeper comparisons.
+
+```{r pie chart}
+#Percent of M vs B
+d_data <- BC %>%
+  count(diagnosis) %>%
+  mutate(
+    percent = round((n / sum(n)) * 100,2)
+  )
+
+ggplot(d_data, aes(x = "", y = percent, fill = diagnosis)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +  # Convert to pie chart
+  geom_text(aes(label = paste0(percent, "%")), 
+            position = position_stack(vjust = 0.5), size = 3, color = "black") +
+  labs(title = "Diagnosis Distribution") +
+  theme_void() 
+```  
+
+### ECDF Plot of concave.points_worst
+We created an ECDF graph for concave.points_worst by diagnosis. This graph is especially useful because it shows how quickly values build up in each group.
+
+From the plot, malignant tumors appear shifted to the right compared to benign tumors. That means malignant tumors tend to have higher concave point values, while benign tumors tend to have lower values. This suggests that concave points are strongly associated with malignancy and may be one of the clearest indicators of a tumor’s seriousness.
+
+```{r ecdf}
+BC |> 
+  filter(diagnosis %in% c("M", "B")) |>
+  ggplot(aes(x = concave.points_worst, color = diagnosis)) +
+  stat_ecdf(linewidth = 1) +
+  theme(legend.position = "bottom")
+```  
+
+### Boxplot of concavity_worst by Diagnosis
+The boxplot comparing concavity_worst across diagnosis groups also shows a clear difference between benign and malignant tumors. Malignant tumors tend to have higher concavity values and greater variability, while benign tumors are generally lower and more compact.
+
+This pattern supports the idea that abnormal tumor shape and irregular cell boundaries are important signs of malignancy.
+
+```{r BP}
+boxplot(
+  concavity_worst ~ diagnosis,
+  data   = BC,
+  main   = "Concavity (Worst) by Diagnosis",
+  xlab   = "Diagnosis (B = Benign, M = Malignant)",
+  ylab   = "Concavity Worst",
+  col    = c("lightblue", "lightpink"),
+  border = "gray40"
+)
+``` 
+
+### Linear Comparison Idea
+We also looked at radius_mean, since size-related measurements are often linked to tumor severity. Larger and more irregular nuclei often appear in malignant samples, so radius is another feature worth examining when comparing the two groups.  
+
+```{r LR}
+BC |> 
+  ggplot(aes(x = radius_mean, y = concavity_mean, color = diagnosis)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+  ggthemes::scale_color_colorblind()
+```
+  
+### Stacked Histogram of radius_worst by Diagnosis
+We also created a stacked histogram to compare radius_worst across benign and malignant tumors. This graph helps visualize how the distribution of tumor size differs between the two diagnosis groups within the same scale.
+
+From the histogram, malignant tumors are more heavily concentrated at higher values of radius_worst, while benign tumors are mostly clustered toward lower values. There is some overlap in the middle range, but the overall shift shows that malignant tumors tend to have significantly larger worst-case radius measurements.
+
+This pattern reinforces our earlier findings that tumor size-related features are strongly associated with malignancy. In particular, radius_worst appears to be a useful variable for distinguishing between benign and malignant cases because it clearly separates the distributions of the two groups.
+
+```{r hist}
+BC |> 
+  filter(diagnosis %in% c("M", "B")) |>
+  ggplot(aes(x = radius_worst, fill = diagnosis)) +
+  geom_histogram(bins = 15)
+```
+
+
+## Interpretation
+Based on the visual evidence, the strongest telltale sign of a malignant tumor appears to be a shape irregularity measurement, especially concave.points_worst and concavity_worst. These variables show the clearest separation between malignant and benign tumors.
+
+In plain English, malignant tumors tend to have:
+- more irregular boundaries,
+- more concave portions,
+- and higher extreme (“worst”) measurements than benign tumors.
+
+This means the most abnormal cells in a tumor sample may be more informative than the average measurements alone. The “worst” values appear especially useful because they capture the most extreme nuclei in the biopsy, which may reflect the most aggressive parts of the tumor.
+
+## Conclusion
+Our analysis shows that concavity and concave points, especially the worst measurements, are the most telltale signs of a malignant tumor in this dataset. These features help distinguish malignant tumors from benign tumors more clearly than some of the other measurements.
+
+Overall, this project demonstrates how mathematics and data analysis can support medical diagnosis. By studying patterns in biopsy measurements, we can better understand how cancerous and non-cancerous tumors differ and identify variables that may be useful in early detection.
+
+
+  
+  
+  
+  
+  
+  
