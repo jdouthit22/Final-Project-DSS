@@ -11,9 +11,10 @@ output:
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 ```
 ## Background Information
-This project uses the breast cancer biopsy dataset to explore whether cell nucleus measurements can help identify malignant tumors. The dataset contains 569 biopsy records and 32 columns, with each row representing one patient sample. The outcome variable is diagnosis, where M = Malignant and B = Benign. The predictor variables describe geometric and texture characteristics of cell nuclei, such as radius, perimeter, area, concavity, and concave points.
+This project uses a breast cancer biopsy dataset to study whether cell nucleus measurements can help identify malignant tumors. The dataset includes 569 biopsy records and 32 variables. The diagnosis variable classifies tumors as malignant (M) or benign (B). Other variables measure features such as radius, area, concavity, and texture of the cell nuclei.
 
-Since the goal of this project is to determine which measurement is the most telltale sign of a malignant tumor, we focused on comparing malignant and benign tumors using summary tables and visualizations. This allowed us to identify which measurements showed the clearest separation between the two groups.
+Our goal was to determine which measurement is the strongest indicator of a malignant tumor by comparing malignant and benign cases using graphs and summary statistics.
+
 
 
 ## Research Question
@@ -32,15 +33,9 @@ Since the goal of this project is to determine which measurement is the most tel
   - radius_mean  
   
 ## Data Preparation
-Before creating any graphs, we loaded the dataset with read.csv() and inspected its structure using nrow(), ncol(), and colnames() to confirm the number of observations and variables. We also created a frequency table for the diagnosis variable using table(BC$diagnosis) to see how many malignant and benign cases were present.
+We loaded the dataset using read.csv() and checked the number of rows, columns, and variable names using nrow(), ncol(), and colnames(). We also created a frequency table for the diagnosis variable to compare the number of malignant and benign tumors.
 
-Next, we calculated the percentage of each diagnosis group by using count(diagnosis) and then dividing each count by the total number of observations. This produced a smaller summary table called d_data, which we used to create a pie chart showing the overall distribution of malignant and benign tumors.
-
-We also checked for missing values using sum(is.na(BC)) to make sure the dataset was ready for analysis.
-Finally, we created two filtered datasets:
-- MT for malignant tumors only
-- BT for benign tumors only
-These subsets helped us compare the two groups more clearly.
+Next, we calculated the percentage of each diagnosis group and created a pie chart to show the distribution of tumors. We checked for missing values using sum(is.na(BC)) to ensure the dataset was complete.
 
 ```{r starter}
 library(dplyr)
@@ -129,11 +124,9 @@ BC |>
 ```
   
 ### Stacked Histogram of radius_worst by Diagnosis
-We also created a stacked histogram to compare radius_worst across benign and malignant tumors. This graph helps visualize how the distribution of tumor size differs between the two diagnosis groups within the same scale.
+We created a stacked histogram to compare radius_worst between malignant and benign tumors. The graph showed that malignant tumors were concentrated at higher radius values, while benign tumors were grouped more at lower values.
 
-From the histogram, malignant tumors are more heavily concentrated at higher values of radius_worst, while benign tumors are mostly clustered toward lower values. There is some overlap in the middle range, but the overall shift shows that malignant tumors tend to have significantly larger worst-case radius measurements.
-
-This pattern reinforces our earlier findings that tumor size-related features are strongly associated with malignancy. In particular, radius_worst appears to be a useful variable for distinguishing between benign and malignant cases because it clearly separates the distributions of the two groups.
+Although there was some overlap, the overall pattern suggests that malignant tumors tend to have larger radius measurements. This indicates that radius_worst is another useful feature for distinguishing between the two groups.
 
 ```{r hist}
 BC |> 
@@ -144,19 +137,12 @@ BC |>
 
 
 ## Interpretation
-Based on the visual evidence, the strongest telltale sign of a malignant tumor appears to be a shape irregularity measurement, especially concave.points_worst and concavity_worst. These variables show the clearest separation between malignant and benign tumors.
+The graphs suggest that measurements related to tumor shape irregularity, especially concave.points_worst and concavity_worst, are the strongest indicators of malignant tumors.
 
-In plain English, malignant tumors tend to have:
-- more irregular boundaries,
-- more concave portions,
-- and higher extreme (“worst”) measurements than benign tumors.
-
-This means the most abnormal cells in a tumor sample may be more informative than the average measurements alone. The “worst” values appear especially useful because they capture the most extreme nuclei in the biopsy, which may reflect the most aggressive parts of the tumor.
+Malignant tumors generally have more irregular boundaries, higher concavity values, and larger extreme measurements. The “worst” measurements appear especially important because they capture the most abnormal cells in the biopsy sample.
 
 ## Conclusion
-Our analysis shows that concavity and concave points, especially the worst measurements, are the most telltale signs of a malignant tumor in this dataset. These features help distinguish malignant tumors from benign tumors more clearly than some of the other measurements.
-
-Overall, this project demonstrates how mathematics and data analysis can support medical diagnosis. By studying patterns in biopsy measurements, we can better understand how cancerous and non-cancerous tumors differ and identify variables that may be useful in early detection.
+Our analysis found that concavity and concave point measurements, especially the worst values, are the clearest signs of malignant tumors in this dataset. Overall, this project shows how data analysis and mathematics can help support medical diagnosis by identifying patterns that separate malignant and benign tumors.
 
 
   
